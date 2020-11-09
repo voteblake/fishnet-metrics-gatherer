@@ -7,8 +7,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-lambda = {git = "https://github.com/awslabs/aws-lambda-rust-runtime.git"}
-hyper = "0.13.9"
-rusoto_cloudwatch = "0.45.0"
-tokio = { version = "0.3.3", features = ["full"] }
+lambda = { git = "https://github.com/awslabs/aws-lambda-rust-runtime.git" }
+reqwest = { version = "0.10", default_features=false, features= ["rustls-tls", "json"] }
+rusoto_core = { version = "0.45.0", default_features=false, features = ["rustls"] }
+rusoto_cloudwatch = { version = "0.45.0", default_features=false, features = ["rustls"] }
+tokio = { version = "0.3.3", features = ["macros", "rt-multi-thread"] }
 serde_json = "1.0.59"
