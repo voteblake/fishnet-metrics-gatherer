@@ -5,7 +5,7 @@ phases:
     commands:
       - echo Started install phase
       - apt-get update -y
-      - apt-get install -y build-essential zip libssl-dev
+      - apt-get install -y build-essential zip libssl-dev musl-dev musl-tools
       - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal
       - export PATH="$HOME/.cargo/bin:$PATH"
       - rustup target add x86_64-unknown-linux-musl
