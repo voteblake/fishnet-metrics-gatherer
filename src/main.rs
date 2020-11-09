@@ -2,8 +2,8 @@ use lambda::{handler_fn, Context};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-// use tracing::{info, Level};
-// use tracing_subscriber::FmtSubscriber;
+use tracing::{info, Level};
+use tracing_subscriber::FmtSubscriber;
 
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -27,10 +27,10 @@ struct FishnetQueueMetric {
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    // let subscriber = FmtSubscriber::builder()
-    //     .with_max_level(Level::DEBUG)
-    //     .finish();
-    // tracing::subscriber::set_global_default(subscriber).expect("Could not set global subscriber");
+    let subscriber = FmtSubscriber::builder()
+        .with_max_level(Level::DEBUG)
+        .finish();
+    tracing::subscriber::set_global_default(subscriber).expect("Could not set global subscriber");
     let func = handler_fn(func);
     lambda::run(func).await?;
     Ok(())
@@ -41,7 +41,6 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
         .await?
         .json::<FishnetStatus>()
         .await?;
-    // info!("got status: {:?}", status);
-    println!("got status: {:?}", status);
+    info!("got status: {:?}", status);
     Ok(event)
 }
