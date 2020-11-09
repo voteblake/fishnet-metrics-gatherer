@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Started install phase
+      - apt-get update -y
+      - apt-get install -y build-essential zip libssl-dev
+      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal
+      - rustup target add x86_64-unknown-linux-musl
+    finally:
+      - echo Finished install phase
+  build:
+    commands:
+      - echo Starting build
+      - cargo build --release --target x86_64-unknown-linux-musl
+    finally:
+      - echo Finished build phase
+  post_build:
+    commands:
+      - cp ./target/release/metrics-gatherer ./bootstrap
+      - zip lambda.zip bootstrap
+
+artifacts:
+  files:
+    - lambda.zip
+  discard-paths: yes

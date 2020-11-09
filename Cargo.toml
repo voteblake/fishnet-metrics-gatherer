@@ -1,0 +1,12 @@
+[package]
+name = "metrics-gatherer"
+version = "0.1.0"
+authors = ["Blake Johnson <johnsonblake1@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lambda = {git = "https://github.com/awslabs/aws-lambda-rust-runtime.git"}
+hyper = "0.13.9"
+rusoto_cloudwatch = "0.45.0"
