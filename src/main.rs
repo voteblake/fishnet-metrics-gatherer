@@ -73,6 +73,42 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
                 value: Some(status.analysis.system.queued as f64),
                 ..Default::default()
             },
+            MetricDatum {
+                metric_name: "oldest".to_string(),
+                dimensions: Some(vec![Dimension {
+                    name: "queue".to_string(),
+                    value: "user".to_string(),
+                }]),
+                value: Some(status.analysis.user.oldest as f64),
+                ..Default::default()
+            },
+            MetricDatum {
+                metric_name: "oldest".to_string(),
+                dimensions: Some(vec![Dimension {
+                    name: "queue".to_string(),
+                    value: "system".to_string(),
+                }]),
+                value: Some(status.analysis.system.oldest as f64),
+                ..Default::default()
+            },
+            MetricDatum {
+                metric_name: "acquired".to_string(),
+                dimensions: Some(vec![Dimension {
+                    name: "queue".to_string(),
+                    value: "user".to_string(),
+                }]),
+                value: Some(status.analysis.user.acquired as f64),
+                ..Default::default()
+            },
+            MetricDatum {
+                metric_name: "acquired".to_string(),
+                dimensions: Some(vec![Dimension {
+                    name: "queue".to_string(),
+                    value: "system".to_string(),
+                }]),
+                value: Some(status.analysis.system.acquired as f64),
+                ..Default::default()
+            },
         ],
     };
 
