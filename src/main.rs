@@ -12,6 +12,7 @@ use Default;
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "lowercase")]
 enum FishnetStatus {
     Analysis {
         user: FishnetQueueMetric,
@@ -113,4 +114,15 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
     cloudwatch_client().put_metric_data(metrics).await?;
 
     Ok(event)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn des() {
+        assert!(serde_json::from_str::<FishnetStatus>(r#"
+        {"analysis":{"user":{"acquired":31,"queued":0,"oldest":0},"system":{"acquired":73,"queued":0,"oldest":0}}}
+        "#).is_ok())
+    }
 }
