@@ -12,21 +12,18 @@ use Default;
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
 #[derive(Serialize, Deserialize, Debug)]
-struct FishnetStatus {
-    pub analysis: FishnetAnalysis,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct FishnetAnalysis {
-    pub user: FishnetQueueMetric,
-    pub system: FishnetQueueMetric,
+enum FishnetStatus {
+    Analysis {
+        user: FishnetQueueMetric,
+        system: FishnetQueueMetric,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct FishnetQueueMetric {
-    pub acquired: u64,
-    pub queued: u64,
-    pub oldest: u64,
+    acquired: u64,
+    queued: u64,
+    oldest: u64,
 }
 
 fn cloudwatch_client() -> &'static CloudWatchClient {
@@ -46,71 +43,72 @@ async fn main() -> Result<(), Error> {
 }
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
-    let status = reqwest::get("https://lichess.org/fishnet/status")
+    let metrics = match reqwest::get("https://lichess.org/fishnet/status")
         .await?
         .json::<FishnetStatus>()
-        .await?;
-    info!("got status: {:?}", status);
-
-    let metrics = PutMetricDataInput {
-        namespace: "fishnet".to_string(),
-        metric_data: vec![
-            MetricDatum {
-                metric_name: "queued".to_string(),
-                dimensions: Some(vec![Dimension {
-                    name: "queue".to_string(),
-                    value: "user".to_string(),
-                }]),
-                value: Some(status.analysis.user.queued as f64),
-                ..Default::default()
-            },
-            MetricDatum {
-                metric_name: "queued".to_string(),
-                dimensions: Some(vec![Dimension {
-                    name: "queue".to_string(),
-                    value: "system".to_string(),
-                }]),
-                value: Some(status.analysis.system.queued as f64),
-                ..Default::default()
-            },
-            MetricDatum {
-                metric_name: "oldest".to_string(),
-                dimensions: Some(vec![Dimension {
-                    name: "queue".to_string(),
-                    value: "user".to_string(),
-                }]),
-                value: Some(status.analysis.user.oldest as f64),
-                ..Default::default()
-            },
-            MetricDatum {
-                metric_name: "oldest".to_string(),
-                dimensions: Some(vec![Dimension {
-                    name: "queue".to_string(),
-                    value: "system".to_string(),
-                }]),
-                value: Some(status.analysis.system.oldest as f64),
-                ..Default::default()
-            },
-            MetricDatum {
-                metric_name: "acquired".to_string(),
-                dimensions: Some(vec![Dimension {
-                    name: "queue".to_string(),
-                    value: "user".to_string(),
-                }]),
-                value: Some(status.analysis.user.acquired as f64),
-                ..Default::default()
-            },
-            MetricDatum {
-                metric_name: "acquired".to_string(),
-                dimensions: Some(vec![Dimension {
-                    name: "queue".to_string(),
-                    value: "system".to_string(),
-                }]),
-                value: Some(status.analysis.system.acquired as f64),
-                ..Default::default()
-            },
-        ],
+        .await?
+    {
+        FishnetStatus::Analysis { user, system } => PutMetricDataInput {
+            namespace: "fishnet".to_string(),
+            metric_data: vec![
+                MetricDatum {
+                    metric_name: "queued".to_string(),
+                    dimensions: Some(vec![Dimension {
+                        name: "queue".to_string(),
+                        value: "user".to_string(),
+                    }]),
+                    value: Some(user.queued as f64),
+                    ..Default::default()
+                },
+                MetricDatum {
+                    metric_name: "queued".to_string(),
+                    dimensions: Some(vec![Dimension {
+                        name: "queue".to_string(),
+                        value: "system".to_string(),
+                    }]),
+                    value: Some(system.queued as f64),
+                    ..Default::default()
+                },
+                MetricDatum {
+                    metric_name: "oldest".to_string(),
+                    dimensions: Some(vec![Dimension {
+                        name: "queue".to_string(),
+                        value: "user".to_string(),
+                    }]),
+                    value: Some(user.oldest as f64),
+                    ..Default::default()
+                },
+                MetricDatum {
+                    metric_name: "oldest".to_string(),
+                    dimensions: Some(vec![Dimension {
+                        name: "queue".to_string(),
+                        value: "system".to_string(),
+                    }]),
+                    value: Some(system.oldest as f64),
+                    ..Default::default()
+                },
+                MetricDatum {
+                    metric_name: "acquired".to_string(),
+                    dimensions: Some(vec![Dimension {
+                        name: "queue".to_string(),
+                        value: "user".to_string(),
+                    }]),
+                    value: Some(user.acquired as f64),
+                    ..Default::default()
+                },
+                MetricDatum {
+                    metric_name: "acquired".to_string(),
+                    dimensions: Some(vec![Dimension {
+                        name: "queue".to_string(),
+                        value: "system".to_string(),
+                    }]),
+                    value: Some(system.acquired as f64),
+                    ..Default::default()
+                },
+            ],
+        },
     };
+    info!("got status: {:?}", metrics);
 
     cloudwatch_client().put_metric_data(metrics).await?;
 
