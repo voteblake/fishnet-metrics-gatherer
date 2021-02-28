@@ -8,12 +8,12 @@ edition = "2018"
 
 [dependencies]
 lambda = { git = "https://github.com/awslabs/aws-lambda-rust-runtime.git" }
-reqwest = { version = "0.10", default_features=false, features= ["rustls-tls", "json"] }
-rusoto_core = { version = "0.45.0", default_features=false, features = ["rustls"] }
-rusoto_cloudwatch = { version = "0.45.0", default_features=false, features = ["rustls"] }
-tokio = { version = "0.2.4", features = ["macros"] }
+reqwest = { version = "0.11", default_features=false, features= ["rustls-tls", "json"] }
+rusoto_core = { version = "0.46.0", default_features=false, features = ["rustls"] }
+rusoto_cloudwatch = { version = "0.46.0", default_features=false, features = ["rustls"] }
+tokio = { version = "1.0", features = ["macros"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tracing = "0.1"
 tracing-subscriber = "0.2.0"
-once_cell = "1.4"
+once_cell = "1.7"
