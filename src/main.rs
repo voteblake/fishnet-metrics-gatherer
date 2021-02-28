@@ -32,6 +32,11 @@ fn cloudwatch_client() -> &'static CloudWatchClient {
     INSTANCE.get_or_init(|| CloudWatchClient::new(Region::default()))
 }
 
+fn reqwest_client() -> &'static reqwest::Client {
+    static INSTANCE: OnceCell<reqwest::Client> = OnceCell::new();
+    INSTANCE.get_or_init(|| reqwest::Client::new())
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     let subscriber = FmtSubscriber::builder()
@@ -44,7 +49,9 @@ async fn main() -> Result<(), Error> {
 }
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
-    let metrics = match reqwest::get("https://lichess.org/fishnet/status")
+    let metrics = match reqwest_client()
+        .get("https://lichess.org/fishnet/status")
+        .send()
         .await?
         .json::<FishnetStatus>()
         .await?
