@@ -4,6 +4,7 @@ phases:
   install:
     commands:
       - echo Started install phase
+      - add-apt-repository --remove https://dl.yarnpkg.com/debian
       - apt-get update -y
       - apt-get install -y build-essential zip libssl-dev musl-dev musl-tools
       - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal
