@@ -1,4 +1,4 @@
-use lambda::{handler_fn, Context};
+use lambda_runtime::{handler_fn, Context};
 use once_cell::sync::OnceCell;
 use reqwest;
 use rusoto_cloudwatch::{CloudWatch, CloudWatchClient, Dimension, MetricDatum, PutMetricDataInput};
@@ -44,7 +44,7 @@ async fn main() -> Result<(), Error> {
         .finish();
     tracing::subscriber::set_global_default(subscriber).expect("Could not set global subscriber");
     let func = handler_fn(func);
-    lambda::run(func).await?;
+    lambda_runtime::run(func).await?;
     Ok(())
 }
 

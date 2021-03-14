@@ -19,7 +19,7 @@ phases:
       - echo Finished build phase
   post_build:
     commands:
-      - cp ./target/x86_64-unknown-linux-musl/release/metrics-gatherer ./bootstrap
+      - cp ./target/x86_64-unknown-linux-musl/release/fishnet-metrics-gatherer ./bootstrap
       - zip lambda.zip bootstrap
 
 artifacts:
